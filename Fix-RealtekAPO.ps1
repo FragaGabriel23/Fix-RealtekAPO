@@ -40,6 +40,7 @@
     Registry backups (.reg) are written before any change.
 
     Tested on Windows 10 / 11 x64.
+    Version: 1.1.0
     License: MIT
 #>
 
@@ -106,6 +107,7 @@ $script:Messages = @{
     'menu.opt6'              = @{ en = '   [6] Backups              list the backups created'; pt = '   [6] Backups              lista os backups gerados' }
     'menu.opt7'              = @{ en = '   [7] About the problem    explanation and recommended order'; pt = '   [7] Sobre o problema     explicacao e ordem recomendada' }
     'menu.opt8'              = @{ en = '   [8] Idioma               mudar para portugues'; pt = '   [8] Language             switch to English' }
+    'menu.opt9'              = @{ en = '   [9] Restart Windows audio  apply changes without rebooting'; pt = '   [9] Reiniciar o audio      aplica alteracoes sem reiniciar o PC' }
     'menu.opt0'              = @{ en = '   [0] Exit'; pt = '   [0] Sair' }
 
     # ---- diagnosis ----------------------------------------------------------
@@ -171,9 +173,10 @@ $script:Messages = @{
     'clean.confirm'          = @{ en = 'Back up and clean {0} device(s)?'; pt = 'Fazer backup e limpar {0} dispositivo(s)?' }
     'clean.nothingHere'      = @{ en = '    no Realtek entries found on this endpoint'; pt = '    nada de Realtek encontrado neste endpoint' }
     'clean.nothingToDo'      = @{ en = '    nothing to clean (no FX chain)'; pt = '    nada a limpar (sem cadeia FX)' }
-    'clean.capxAsk'          = @{ en = '    Also remove the CAPX subkey created by the service?'; pt = '    Remover tambem a subchave CAPX criada pelo servico?' }
+    'clean.capxAsk'          = @{ en = '    Also try to remove the CAPX subkey (optional, cosmetic)?'; pt = '    Tentar remover tambem a subchave CAPX (opcional, cosmetico)?' }
+    'clean.capxKept'         = @{ en = '    the CAPX subkey could not be removed - this does not matter:'; pt = '    a subchave CAPX nao pudo ser removida - isso nao importa:' }
+    'clean.capxKept2'        = @{ en = '    the service recreates it on every run and the effects chain stays clean.'; pt = '    o servico a recria a cada execucao e a cadeia de efeitos continua limpa.' }
     'clean.capxRemoved'      = @{ en = '    CAPX subkey removed'; pt = '    subchave CAPX removida' }
-    'clean.restartHint'      = @{ en = 'Restart the Windows audio service to apply:'; pt = 'Reinicie o servico de audio do Windows para aplicar:' }
     'clean.warnReturns'      = @{ en = 'NOTE: without the block, contamination comes back on the next run.'; pt = 'ATENCAO: sem o bloqueio, a contaminacao volta na proxima execucao.' }
 
     # ---- block --------------------------------------------------------------
@@ -223,8 +226,22 @@ $script:Messages = @{
     'revert.notFoundHere'    = @{ en = '    no block found on this endpoint'; pt = '    nenhum bloqueio encontrado neste endpoint' }
     'revert.ownerRestored'   = @{ en = '    original owner restored'; pt = '    proprietario original restaurado' }
     'revert.ownerFailed'     = @{ en = '    warning: could not restore the original owner'; pt = '    aviso: nao foi possivel restaurar o proprietario' }
+    'revert.aclNote'         = @{ en = 'The Administrators write permission added during cleanup is left in place.'; pt = 'A permissao de escrita para Administradores, adicionada na limpeza, permanece.' }
     'revert.sidNote'         = @{ en = 'The per-service SID stays enabled (harmless).'; pt = 'O SID por servico permanece ativo (inofensivo).' }
     'revert.sidDisable'      = @{ en = 'To disable it too:  sc.exe sidtype {0} none'; pt = 'Para desativa-lo:  sc.exe sidtype {0} none' }
+
+    # ---- windows audio ------------------------------------------------------
+    'audio.title'            = @{ en = 'RESTART WINDOWS AUDIO'; pt = 'REINICIAR O AUDIO DO WINDOWS' }
+    'audio.explain'          = @{ en = 'Reloads the effects chain so registry changes take effect without'; pt = 'Recarrega a cadeia de efeitos para que as alteracoes no registro' }
+    'audio.explain2'         = @{ en = 'rebooting the computer.'; pt = 'valham sem precisar reiniciar o computador.' }
+    'audio.warn'             = @{ en = 'Sound drops out for a few seconds. Applications already playing audio'; pt = 'O som cai por alguns segundos. Aplicativos que ja estao tocando audio' }
+    'audio.warn2'            = @{ en = 'may need to be reopened.'; pt = 'podem precisar ser reabertos.' }
+    'audio.confirm'          = @{ en = 'Restart Windows Audio now?'; pt = 'Reiniciar o Audio do Windows agora?' }
+    'audio.offer'            = @{ en = 'Restart Windows Audio now to apply the changes?'; pt = 'Reiniciar o Audio do Windows agora para aplicar as alteracoes?' }
+    'audio.restarting'       = @{ en = '    restarting Windows Audio...'; pt = '    reiniciando o Audio do Windows...' }
+    'audio.done'             = @{ en = '    Windows Audio restarted'; pt = '    Audio do Windows reiniciado' }
+    'audio.failed'           = @{ en = '    could not restart Windows Audio: {0}'; pt = '    nao foi possivel reiniciar o Audio do Windows: {0}' }
+    'audio.manualHint'       = @{ en = 'To do it by hand later:'; pt = 'Para fazer manualmente depois:' }
 
     # ---- service control ----------------------------------------------------
     'svc.title'              = @{ en = 'REALTEK SERVICE CONTROL'; pt = 'CONTROLAR O SERVICO REALTEK' }
@@ -270,6 +287,15 @@ $script:Messages = @{
     'about.warn1'            = @{ en = '  This tool changes Windows registry permissions and values.'; pt = '  Esta ferramenta altera permissoes e valores do registro do Windows.' }
     'about.warn2'            = @{ en = '  Backups are created automatically, but use at your own risk.'; pt = '  Backups sao gerados automaticamente, mas use por sua conta e risco.' }
 
+    # ---- registry access ----------------------------------------------------
+    'acl.grantNeeded'        = @{ en = '    key is read-only for administrators: taking ownership'; pt = '    chave somente leitura para administradores: assumindo a propriedade' }
+    'acl.granted'            = @{ en = '    write access granted'; pt = '    acesso de escrita concedido' }
+    'ep.clsidNotRegistered'  = @{ en = '(not registered on this system)'; pt = '(nao registrado neste sistema)' }
+    'acl.dumpTitle'          = @{ en = '    current permissions on this key:'; pt = '    permissoes atuais nesta chave:' }
+    'acl.dumpUnreadable'     = @{ en = '      (the ACL could not be read)'; pt = '      (nao foi possivel ler a ACL)' }
+    'acl.dumpHint'           = @{ en = '    Please report the block above if the cleanup keeps failing.'; pt = '    Reporte o bloco acima se a limpeza continuar falhando.' }
+    'acl.grantFailed'        = @{ en = '    could not obtain write access to the effects key'; pt = '    nao foi possivel obter acesso de escrita na chave de efeitos' }
+
     # ---- privileges ---------------------------------------------------------
     'priv.loadFailed'        = @{ en = '    warning: could not load the privilege helper'; pt = '    aviso: nao foi possivel carregar o auxiliar de privilegios' }
 }
@@ -295,8 +321,10 @@ function Get-Text {
     if (-not $text) { $text = $entry['en'] }
     if (-not $text) { return $Key }
 
-    if ($FormatArgs -and $FormatArgs.Count -gt 0) {
-        try { return ($text -f $FormatArgs) } catch { return $text }
+    # @() guards against a single unwrapped value, whose .Count can be $null
+    $values = @($FormatArgs)
+    if ($null -ne $FormatArgs -and $values.Count -gt 0) {
+        try { return ($text -f $values) } catch { return $text }
     }
     return $text
 }
@@ -307,6 +335,9 @@ Set-Alias -Name T -Value Get-Text -Scope Script
 # ==============================================================================
 #  CONFIGURATION
 # ==============================================================================
+
+# Shown under the menu banner, so bug reports can say which build they ran.
+$script:Version = '1.1.0'
 
 # Backups land on the Desktop; fall back to the user profile, then to TEMP,
 # in case the Desktop folder is redirected or unavailable.
@@ -561,6 +592,234 @@ function Get-KeyAclSafe {
     } catch { return $null }
 }
 
+function Test-KeyWritable {
+    <#
+        Can this process write values to the key? The audio endpoint keys are
+        owned by TrustedInstaller and frequently grant Administrators read
+        access only, so being elevated is not sufficient on its own.
+    #>
+    param([string]$PsPath)
+    try {
+        $subKeyPath = ConvertTo-SubKeyPath $PsPath
+        # Ask for everything a cleanup needs. Asking for SetValue alone can
+        # succeed on a key that still refuses the writes, because a DACL may
+        # grant SetValue while denying CreateSubKey, Delete or enumeration.
+        $key = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey(
+                   $subKeyPath,
+                   [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+                   [System.Security.AccessControl.RegistryRights]::SetValue -bor
+                   [System.Security.AccessControl.RegistryRights]::CreateSubKey -bor
+                   [System.Security.AccessControl.RegistryRights]::EnumerateSubKeys -bor
+                   [System.Security.AccessControl.RegistryRights]::QueryValues -bor
+                   [System.Security.AccessControl.RegistryRights]::Delete)
+        if (-not $key) { return $false }
+        $key.Close()
+        return $true
+    } catch { return $false }
+}
+
+function Set-RegistryMultiString {
+    <#
+        Writes a REG_MULTI_SZ value through the raw registry API.
+
+        Set-ItemProperty is not used here: the PowerShell registry provider
+        opens the key with the whole KEY_WRITE mask, which fails with
+        "requested registry access is not allowed" on keys that grant only
+        part of it. Opening with exactly the rights needed succeeds where the
+        provider does not.
+    #>
+    param([string]$PsPath, [string]$Name, [string[]]$Values)
+
+    $subKeyPath = ConvertTo-SubKeyPath $PsPath
+    $key = $null
+    try {
+        $key = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey(
+                   $subKeyPath,
+                   [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+                   [System.Security.AccessControl.RegistryRights]::SetValue -bor
+                   [System.Security.AccessControl.RegistryRights]::QueryValues)
+    } catch { $key = $null }
+
+    if (-not $key) { throw 'could not open the key for writing' }
+
+    try {
+        $key.SetValue($Name, [string[]]$Values, [Microsoft.Win32.RegistryValueKind]::MultiString)
+    } finally { $key.Close() }
+}
+
+function Set-KeyFullControlForAdmins {
+    <#
+        Takes ownership of a key and grants the Administrators group full
+        control. Deleting a key needs the DELETE right on the key itself, which
+        the narrower grant used for value writes does not reliably provide.
+    #>
+    param([string]$PsPath)
+
+    try { Set-KeyOwner -PsPath $PsPath } catch { }
+
+    try {
+        $adminsSid = $script:AdminsSid
+        $fullRule = {
+            param($acl)
+            $identity = New-Object System.Security.Principal.SecurityIdentifier($adminsSid)
+            $acl.AddAccessRule((New-Object System.Security.AccessControl.RegistryAccessRule(
+                $identity, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')))
+        }.GetNewClosure()
+
+        Edit-KeyAcl -PsPath $PsPath -Action $fullRule
+        return $true
+    } catch { return $false }
+}
+
+function Grant-TreeFullControl {
+    # Applies Set-KeyFullControlForAdmins to a key and everything beneath it.
+    param([string]$PsPath)
+
+    [void](Set-KeyFullControlForAdmins -PsPath $PsPath)
+
+    $subKeyPath = ConvertTo-SubKeyPath $PsPath
+    $key = $null
+    try {
+        $key = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey(
+                   $subKeyPath,
+                   [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadSubTree,
+                   [System.Security.AccessControl.RegistryRights]::EnumerateSubKeys -bor
+                   [System.Security.AccessControl.RegistryRights]::QueryValues)
+    } catch { $key = $null }
+
+    if (-not $key) { return }
+
+    $children = @()
+    try { $children = @($key.GetSubKeyNames()) } catch { } finally { $key.Close() }
+
+    foreach ($child in $children) {
+        Grant-TreeFullControl -PsPath (Join-Path $PsPath $child)
+    }
+}
+
+function Remove-RegistryKeyTreeForced {
+    <#
+        Deletes a key and everything beneath it.
+
+        Ownership and full control are taken across the whole subtree first,
+        because DeleteSubKey needs the DELETE right on each key itself and these
+        keys are owned by SYSTEM or TrustedInstaller with children that do not
+        necessarily inherit what was granted above them. reg.exe is kept as a
+        second attempt: it occasionally succeeds where the .NET call does not.
+    #>
+    param([string]$ParentPsPath, [string]$Name)
+
+    $childPsPath = Join-Path $ParentPsPath $Name
+    if (-not (Test-Path $childPsPath)) { return }
+
+    Grant-TreeFullControl -PsPath $childPsPath
+
+    $dotNetError = $null
+    try {
+        $parentSubKey = ConvertTo-SubKeyPath $ParentPsPath
+        $parent = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey(
+                      $parentSubKey,
+                      [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+                      [System.Security.AccessControl.RegistryRights]::EnumerateSubKeys -bor
+                      [System.Security.AccessControl.RegistryRights]::QueryValues -bor
+                      [System.Security.AccessControl.RegistryRights]::CreateSubKey -bor
+                      [System.Security.AccessControl.RegistryRights]::Delete)
+        if (-not $parent) { throw 'could not open the parent key' }
+        try { $parent.DeleteSubKeyTree($Name, $false) } finally { $parent.Close() }
+    } catch {
+        $dotNetError = $_.Exception.Message
+    }
+
+    if (-not (Test-Path $childPsPath)) { return }
+
+    # second attempt
+    $regPath = 'HKLM\' + (ConvertTo-SubKeyPath $childPsPath)
+    $output  = & reg.exe delete $regPath /f 2>&1
+
+    if (Test-Path $childPsPath) {
+        $detail = if ($dotNetError) { "$dotNetError / $($output -join ' ')" } else { ($output -join ' ') }
+        throw $detail
+    }
+}
+
+function Grant-KeyWriteAccess {
+    <#
+        Ensures this process can write to the key, taking ownership and adding
+        an Allow rule for the Administrators group when it cannot. The original
+        owner is recorded first so a revert can restore it.
+    #>
+    param([string]$PsPath, [switch]$Quiet)
+
+    if (Test-KeyWritable -PsPath $PsPath) { return $true }
+
+    if (-not $Quiet) { Write-Line (T 'acl.grantNeeded') 'Yellow' }
+
+    $originalOwner = Get-KeyOwner -PsPath $PsPath
+    if ($originalOwner) { Save-OriginalOwner -PsPath $PsPath -Sid $originalOwner }
+
+    try {
+        $adminsSid = $script:AdminsSid
+        $grantRule = {
+            param($acl)
+            $identity = New-Object System.Security.Principal.SecurityIdentifier($adminsSid)
+            $rule = New-Object System.Security.AccessControl.RegistryAccessRule(
+                $identity,
+                'SetValue,CreateSubKey,Delete,ReadKey',
+                'ContainerInherit,ObjectInherit',
+                'None',
+                'Allow')
+            $acl.AddAccessRule($rule)
+        }.GetNewClosure()
+
+        Edit-KeyAcl -PsPath $PsPath -Action $grantRule
+
+        if (Test-KeyWritable -PsPath $PsPath) {
+            if (-not $Quiet) { Write-Line (T 'acl.granted') 'Green' }
+            return $true
+        }
+        if (-not $Quiet) { Write-Line (T 'acl.grantFailed') 'Yellow' }
+        return $false
+
+    } catch {
+        if (-not $Quiet) {
+            Write-Line (T 'common.error' @($_.Exception.Message)) 'Red'
+            Write-Line (T 'acl.grantFailed') 'Yellow'
+        }
+        return $false
+    }
+}
+
+function Show-KeyAccessSummary {
+    <#
+        Prints the owner and access rules of a key. Used when a write fails, so
+        the reason is visible in the same run instead of needing another pass.
+    #>
+    param([string]$PsPath)
+
+    Write-Line (T 'acl.dumpTitle') 'DarkGray'
+
+    $owner = Get-KeyOwner -PsPath $PsPath
+    if ($owner) {
+        try {
+            $ownerName = (New-Object System.Security.Principal.SecurityIdentifier($owner)
+                         ).Translate([System.Security.Principal.NTAccount]).Value
+        } catch { $ownerName = $owner }
+        Write-Line ("      owner : {0}" -f $ownerName) 'DarkGray'
+    }
+
+    $acl = Get-KeyAclSafe -PsPath $PsPath
+    if (-not $acl) {
+        Write-Line (T 'acl.dumpUnreadable') 'DarkGray'
+        return
+    }
+
+    foreach ($rule in $acl.Access) {
+        Write-Line ("      {0,-5} {1,-42} {2}" -f `
+                    $rule.AccessControlType, $rule.IdentityReference.Value, $rule.RegistryRights) 'DarkGray'
+    }
+    Write-Line (T 'acl.dumpHint') 'Yellow'
+}
+
 function Save-OriginalOwner {
     param([string]$PsPath, [string]$Sid)
     if (-not $Sid) { return }
@@ -620,6 +879,16 @@ function Find-RealtekService {
 # ==============================================================================
 
 $script:ClsidCache = @{}
+$script:ClsidDllCache = @{}
+
+function Get-ClsidDll {
+    # DLL behind a CLSID, as recorded by Get-ClsidOwner; $null when unregistered.
+    param([string]$Clsid)
+    if ([string]::IsNullOrWhiteSpace($Clsid)) { return $null }
+    $key = $Clsid.Trim()
+    if ($script:ClsidDllCache.ContainsKey($key)) { return $script:ClsidDllCache[$key] }
+    return $null
+}
 
 function Get-ClsidOwner {
     <#
@@ -638,13 +907,72 @@ function Get-ClsidOwner {
     $owner = 'Unknown'
     $dllPath = $null
 
+    # Packaged COM (MSIX/Store apps) does not register under HKCR\CLSID at all;
+    # it lives in the PackagedCom catalog, keyed by CLSID, naming the package.
+    # THX Spatial Audio ships this way, which is why it resolved as Unknown.
+    $packagedRoot = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PackagedCom\ClassIndex'
+    $packagedKey  = Join-Path $packagedRoot $Clsid
+    if (Test-Path $packagedKey) {
+        try {
+            $entry  = Get-Item -Path $packagedKey -ErrorAction Stop
+            $names  = @()
+            $names += @($entry.GetValueNames() | Where-Object { $_ })
+            $names += @($entry.GetSubKeyNames())
+            foreach ($name in $names) {
+                $value = $null
+                try { $value = $entry.GetValue($name) } catch { }
+                $candidate = if ($value) { "$name $value" } else { $name }
+                if ($candidate) { $dllPath = $candidate; break }
+            }
+        } catch { $dllPath = $null }
+    }
+
     foreach ($root in @('HKLM:\SOFTWARE\Classes\CLSID',
                         'HKLM:\SOFTWARE\Classes\WOW6432Node\CLSID')) {
+        if ($dllPath) { break }
         $path = Join-Path $root "$Clsid\InprocServer32"
         if (Test-Path $path) {
-            try { $dllPath = (Get-ItemProperty -Path $path -ErrorAction Stop).'(default)' }
-            catch { $dllPath = $null }
+            # The default (unnamed) value is read through the RegistryKey API:
+            # Get-ItemProperty exposes it as '(default)' only in some cases and
+            # returns nothing in others, which made vendors show as Unknown.
+            try {
+                $clsidKey = Get-Item -Path $path -ErrorAction Stop
+                $dllPath  = $clsidKey.GetValue('')
+            } catch { $dllPath = $null }
+
+            if (-not $dllPath) {
+                try { $dllPath = (Get-ItemProperty -Path $path -ErrorAction Stop).'(default)' }
+                catch { $dllPath = $null }
+            }
             if ($dllPath) { break }
+        }
+    }
+
+    # APO catalog written by RegisterAPO. It carries a FriendlyName and a
+    # Copyright even when the COM server is registered somewhere else.
+    if (-not $dllPath) {
+        $apoKey = Join-Path 'HKLM:\SOFTWARE\Classes\AudioEngine\AudioProcessingObjects' $Clsid
+        if (Test-Path $apoKey) {
+            try {
+                $apo = Get-ItemProperty -Path $apoKey -ErrorAction Stop
+                if ($apo.FriendlyName)   { $dllPath = [string]$apo.FriendlyName }
+                elseif ($apo.Copyright)  { $dllPath = [string]$apo.Copyright }
+            } catch { }
+        }
+    }
+
+    # Last resort: the CLSID's friendly name, e.g. "RtkAPOEFX2 Class".
+    if (-not $dllPath) {
+        foreach ($root in @('HKLM:\SOFTWARE\Classes\CLSID',
+                            'HKLM:\SOFTWARE\Classes\WOW6432Node\CLSID')) {
+            $namePath = Join-Path $root $Clsid
+            if (Test-Path $namePath) {
+                try {
+                    $nameKey  = Get-Item -Path $namePath -ErrorAction Stop
+                    $friendly = $nameKey.GetValue('')
+                    if ($friendly) { $dllPath = $friendly; break }
+                } catch { }
+            }
         }
     }
 
@@ -664,7 +992,8 @@ function Get-ClsidOwner {
         }
     }
 
-    $script:ClsidCache[$Clsid] = $owner
+    $script:ClsidCache[$Clsid]    = $owner
+    $script:ClsidDllCache[$Clsid] = $dllPath
     return $owner
 }
 
@@ -717,7 +1046,10 @@ function Get-AudioEndpoints {
             if (Test-Path $fxPath) {
                 $fx = Get-ItemProperty -Path $fxPath -ErrorAction SilentlyContinue
                 foreach ($property in $script:FxPropertyLabels.Keys) {
-                    $clsids = Get-ClsidList $fx.$property
+                    # @() is essential: a single-element array returned from a
+                    # function is unwrapped on assignment, and indexing the
+                    # resulting string yields characters rather than CLSIDs.
+                    $clsids = @(Get-ClsidList $fx.$property)
                     $owners = @()
                     foreach ($clsid in $clsids) {
                         $owner = Get-ClsidOwner $clsid
@@ -726,8 +1058,8 @@ function Get-AudioEndpoints {
                     }
                     $chain[$property] = [pscustomobject]@{
                         LabelKey = $script:FxPropertyLabels[$property]
-                        Clsids   = $clsids
-                        Owners   = $owners
+                        Clsids   = @($clsids)
+                        Owners   = @($owners)
                     }
                 }
             }
@@ -861,6 +1193,16 @@ function Show-ChainDetail {
         $color = if ($item.Owners -contains 'Realtek') { 'Red' } else { 'Green' }
         Write-Host ("    {0,-12} : " -f $label) -NoNewline -ForegroundColor Gray
         Write-Host $text -ForegroundColor $color
+
+        # One line per CLSID with the DLL behind it. This is what makes a bug
+        # report useful, and it names the effects the vendor map does not know.
+        for ($i = 0; $i -lt $item.Clsids.Count; $i++) {
+            $dll = Get-ClsidDll -Clsid $item.Clsids[$i]
+            $shown = if (-not $dll)        { T 'ep.clsidNotRegistered' }
+                     elseif ($dll -match '\\') { ($dll -split '\\')[-1] }
+                     else                    { $dll }
+            Write-Line ("      {0}  {1,-12} {2}" -f $item.Clsids[$i], $item.Owners[$i], $shown) 'DarkGray'
+        }
     }
 }
 
@@ -905,7 +1247,13 @@ function Invoke-EndpointCleanup {
         return $false
     }
 
+    # Administrators usually hold read-only rights on these keys, so write
+    # access is obtained first. This is advisory: if it cannot be granted the
+    # writes are still attempted, and any failure is reported per property.
+    [void](Grant-KeyWriteAccess -PsPath $Endpoint.FxPath)
+
     $changed = $false
+    $failed  = $false
 
     foreach ($property in $Endpoint.Chain.Keys) {
         $item  = $Endpoint.Chain[$property]
@@ -921,8 +1269,8 @@ function Invoke-EndpointCleanup {
         if ($kept.Count -eq $item.Clsids.Count) { continue }
 
         try {
-            Set-ItemProperty -Path $Endpoint.FxPath -Name $property `
-                             -Value ([string[]]$kept) -Type MultiString
+            Set-RegistryMultiString -PsPath $Endpoint.FxPath -Name $property `
+                                    -Values ([string[]]$kept)
 
             $before = ($item.Owners -join '+')
             $after  = if ($kept.Count -eq 0) { T 'common.empty' }
@@ -932,19 +1280,27 @@ function Invoke-EndpointCleanup {
             $changed = $true
         } catch {
             Write-Line (T 'common.error' @("$label - $($_.Exception.Message)")) 'Red'
+            $failed = $true
         }
     }
+
+    # Show why, so a failure is diagnosable from a single run.
+    if ($failed) { Show-KeyAccessSummary -PsPath $Endpoint.FxPath }
 
     # CAPX subkey created by the service
     $capxPath = Join-Path $Endpoint.FxPath $script:CapxSubKey
     if (Test-Path $capxPath) {
         if (Confirm-Action (T 'clean.capxAsk') -DefaultNo) {
             try {
-                Remove-Item -Path $capxPath -Recurse -Force
+                Remove-RegistryKeyTreeForced -ParentPsPath $Endpoint.FxPath -Name $script:CapxSubKey
                 Write-Line (T 'clean.capxRemoved') 'Green'
                 $changed = $true
             } catch {
-                Write-Line (T 'common.error' @($_.Exception.Message)) 'Red'
+                # Not an error worth alarming anyone about: the key holds only
+                # metadata, the service recreates it regardless, and the block
+                # is what keeps the effects chain clean.
+                Write-Line (T 'clean.capxKept') 'DarkYellow'
+                Write-Line (T 'clean.capxKept2') 'DarkGray'
             }
         }
     }
@@ -1224,7 +1580,7 @@ function Invoke-Cleanup {
     Write-Line (T 'clean.intro2') 'Gray'
 
     $endpoints = Get-AudioEndpoints
-    $selected  = Select-Endpoints -Endpoints $endpoints -TitleKey 'sel.titleClean'
+    $selected  = @(Select-Endpoints -Endpoints $endpoints -TitleKey 'sel.titleClean')
 
     if ($selected.Count -eq 0) {
         Write-Line (T 'common.nothingSelected') 'Yellow'; Wait-Menu; return
@@ -1238,6 +1594,7 @@ function Invoke-Cleanup {
     foreach ($endpoint in $selected) {
         Write-Line ''
         Write-Line ">> $($endpoint.Kind) - $($endpoint.Name)" 'White'
+        Show-ChainDetail -Endpoint $endpoint
         if (-not (Backup-Endpoint -Endpoint $endpoint)) {
             Write-Line (T 'backup.skipDevice') 'Red'
             continue
@@ -1246,8 +1603,7 @@ function Invoke-Cleanup {
     }
 
     Write-Line ''
-    Write-Line (T 'clean.restartHint') 'Gray'
-    Write-Line '    Restart-Service Audiosrv -Force' 'DarkGray'
+    [void](Restart-AudioService -Ask)
     Write-Line ''
     Write-Line (T 'clean.warnReturns') 'Yellow'
 
@@ -1276,7 +1632,7 @@ function Invoke-Block {
     Write-Line (T 'block.not3') 'Gray'
 
     $endpoints = Get-AudioEndpoints
-    $selected  = Select-Endpoints -Endpoints $endpoints -TitleKey 'sel.titleProtect'
+    $selected  = @(Select-Endpoints -Endpoints $endpoints -TitleKey 'sel.titleProtect')
 
     if ($selected.Count -eq 0) {
         Write-Line (T 'common.nothingSelected') 'Yellow'; Wait-Menu; return
@@ -1313,6 +1669,7 @@ function Invoke-Block {
         Write-Line ''
         Write-Line ">> $($endpoint.Kind) - $($endpoint.Name)" 'White'
 
+        Show-ChainDetail -Endpoint $endpoint
         if (-not (Backup-Endpoint -Endpoint $endpoint)) {
             Write-Line (T 'backup.skipDevice') 'Red'
             continue
@@ -1320,6 +1677,9 @@ function Invoke-Block {
         if ($endpoint.IsContaminated) { [void](Invoke-EndpointCleanup -Endpoint $endpoint) }
         [void](Set-EndpointBlock -Endpoint $endpoint -ServiceName $Service.Name)
     }
+
+    Write-Line ''
+    [void](Restart-AudioService -Ask)
 
     Write-Section (T 'block.nextSection')
     Write-Line (T 'block.next1') 'White'
@@ -1335,6 +1695,53 @@ function Invoke-Block {
     Write-Line (T 'block.fallback2') 'Yellow'
     Write-Line (T 'block.fallback3') 'Yellow'
 
+    Wait-Menu
+}
+
+function Restart-AudioService {
+    <#
+        Restarts the Windows Audio service so the effects chain is reloaded.
+        -Force takes the dependent services down and back up with it, which is
+        what makes a registry change take effect without a reboot.
+    #>
+    param([switch]$Ask)
+
+    if ($Ask -and -not (Confirm-Action (T 'audio.offer'))) {
+        Write-Line (T 'audio.manualHint') 'Gray'
+        Write-Line '    Restart-Service Audiosrv -Force' 'DarkGray'
+        return $false
+    }
+
+    Write-Line (T 'audio.restarting') 'Gray'
+    try {
+        Restart-Service -Name Audiosrv -Force -ErrorAction Stop
+        Start-Sleep -Seconds 2
+        Write-Line (T 'audio.done') 'Green'
+        return $true
+    } catch {
+        Write-Line (T 'audio.failed' @($_.Exception.Message)) 'Red'
+        Write-Line (T 'audio.manualHint') 'Gray'
+        Write-Line '    Restart-Service Audiosrv -Force' 'DarkGray'
+        return $false
+    }
+}
+
+function Invoke-AudioRestart {
+    Write-Header (T 'audio.title')
+
+    Write-Line (T 'audio.explain') 'Gray'
+    Write-Line (T 'audio.explain2') 'Gray'
+    Write-Line ''
+    Write-Line (T 'audio.warn') 'Yellow'
+    Write-Line (T 'audio.warn2') 'Yellow'
+    Write-Line ''
+
+    if (-not (Confirm-Action (T 'audio.confirm'))) {
+        Write-Line (T 'common.cancelled') 'Yellow'
+        Wait-Menu; return
+    }
+
+    [void](Restart-AudioService)
     Wait-Menu
 }
 
@@ -1378,6 +1785,7 @@ function Invoke-Revert {
     }
 
     Write-Line ''
+    Write-Line (T 'revert.aclNote') 'Gray'
     Write-Line (T 'revert.sidNote') 'Gray'
     Write-Line (T 'revert.sidDisable' @($Service.Name)) 'DarkGray'
 
@@ -1561,6 +1969,7 @@ function Show-Menu {
     Write-Host (T 'menu.banner') -ForegroundColor Cyan
     Write-Host ('#' + (' ' * 59) + '#') -ForegroundColor DarkCyan
     Write-Host ('#' * 61) -ForegroundColor DarkCyan
+    Write-Host ("   v{0}" -f $script:Version) -ForegroundColor DarkGray
     Write-Host ''
 
     if ($Service) {
@@ -1593,6 +2002,7 @@ function Show-Menu {
     Write-Host (T 'menu.opt6') -ForegroundColor White
     Write-Host (T 'menu.opt7') -ForegroundColor White
     Write-Host (T 'menu.opt8') -ForegroundColor DarkCyan
+    Write-Host (T 'menu.opt9') -ForegroundColor White
     Write-Host (T 'menu.opt0') -ForegroundColor DarkGray
     Write-Host ''
     Write-Host ('   ' + ('-' * 55)) -ForegroundColor DarkGray
@@ -1677,6 +2087,7 @@ while ($true) {
             }
         '6' { Show-Backups }
         '7' { Show-About }
+        '9' { Invoke-AudioRestart }
         '8' { $script:Language = if ($script:Language -eq 'pt') { 'en' } else { 'pt' } }
         '0' {
               Write-Host ''

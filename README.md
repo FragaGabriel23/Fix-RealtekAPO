@@ -115,8 +115,8 @@ To skip the language prompt:
 | Step | Menu option |
 |---|---|
 | 1 | `[1] Diagnose` — confirm this is your case |
-| 2 | `[3] Apply block` — backs up, cleans and protects |
-| 3 | **Reboot** — the service runs at startup and at other moments during normal use |
+| 2 | `[3] Apply block` — backs up, cleans, protects, and offers to restart Windows audio so the fix applies immediately |
+| 3 | **Reboot** — the service runs at startup and at other moments during normal use; this is what proves the block holds |
 | 4 | `[1] Diagnose` — confirm the endpoint stayed clean |
 
 ### Menu
@@ -130,6 +130,7 @@ To skip the language prompt:
 [6] Backups              list the backups created
 [7] About the problem    explanation and recommended order
 [8] Idioma               switch language
+[9] Restart audio        apply changes without rebooting
 [0] Exit
 ```
 
@@ -138,6 +139,9 @@ endpoints are enumerated from the registry, and each CLSID in a chain is resolve
 that registers it — which is how the tool tells a Realtek APO from a THX, Dolby, Nahimic,
 Creative, Waves, Razer, Sennheiser, SteelSeries or Logitech one, instead of relying on a list
 of known GUIDs.
+
+The diagnosis lists every CLSID in each effects chain with its vendor and the DLL behind it.
+If you open an issue, include that output — it is what makes a report actionable.
 
 ---
 
@@ -151,7 +155,12 @@ of known GUIDs.
 - `[4] Revert block` removes the Deny rule and restores the original owner
 - Nothing is uninstalled, and the Realtek service is never disabled unless you explicitly ask
   for it in option `[5]`
-
+- When a key is read-only for administrators, the tool takes ownership and grants the
+  Administrators group write access before cleaning. The original owner is restored on
+  revert; the write permission is left in place.
+- Removing the CAPX subkey is optional and cosmetic: it holds only metadata and the
+  service recreates it on every run. The block is what keeps the chain clean.
+  
 ---
 
 ## Limitations

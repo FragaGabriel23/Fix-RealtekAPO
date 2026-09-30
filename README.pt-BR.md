@@ -116,8 +116,8 @@ Para pular a pergunta de idioma:
 | Passo | Opção do menu |
 |---|---|
 | 1 | `[1] Diagnóstico` — confirma se o seu caso é este |
-| 2 | `[3] Aplicar bloqueio` — faz backup, limpa e protege |
-| 3 | **Reinicie** — o serviço roda no boot e também em outros momentos de uso |
+| 2 | `[3] Aplicar bloqueio` — faz backup, limpa, protege e oferece reiniciar o áudio do Windows para a correção valer na hora |
+| 3 | **Reinicie** — o serviço roda no boot e em outros momentos de uso; é isso que prova que o bloqueio segura |
 | 4 | `[1] Diagnóstico` — confirma que o endpoint continuou limpo |
 
 ### Menu
@@ -131,6 +131,7 @@ Para pular a pergunta de idioma:
 [6] Backups              lista os backups gerados
 [7] Sobre o problema     explicação e ordem recomendada
 [8] Language             trocar de idioma
+[9] Reiniciar o áudio    aplica alterações sem reiniciar o PC
 [0] Sair
 ```
 
@@ -139,6 +140,9 @@ endpoints são enumerados do registro, e cada CLSID da cadeia é resolvido até 
 registra — é assim que a ferramenta distingue um APO da Realtek de um do THX, Dolby, Nahimic,
 Creative, Waves, Razer, Sennheiser, SteelSeries ou Logitech, em vez de depender de uma lista
 de GUIDs conhecidos.
+
+O diagnóstico lista cada CLSID da cadeia de efeitos com o fabricante e a DLL correspondente.
+Se abrir uma issue, inclua essa saída — é ela que torna o relato útil.
 
 ---
 
@@ -152,6 +156,11 @@ de GUIDs conhecidos.
 - A opção `[4] Reverter bloqueio` remove a regra Deny e restaura o proprietário original
 - Nada é desinstalado, e o serviço da Realtek só é desativado se você pedir explicitamente na
   opção `[5]`
+- Quando uma chave é somente leitura para administradores, a ferramenta assume a
+  propriedade e concede escrita ao grupo Administradores antes de limpar. O proprietário
+  original é restaurado na reversão; a permissão de escrita permanece.
+- Remover a subchave CAPX é opcional e cosmético: ela guarda apenas metadados e o serviço
+  a recria a cada execução. É o bloqueio que mantém a cadeia limpa.
 
 ---
 
